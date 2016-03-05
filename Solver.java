@@ -7,6 +7,7 @@
  * Purpose:		[Insert Here]
 */
 
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.*;
 
@@ -19,7 +20,7 @@ public class Solver
 	public static final int LESS_THAN    = 2;
 	public static final int GREATER_THAN = 3;
 
-	public static void main (String args[])
+	public static void main(String args[]) throws IOException
 	{
 		
 		// Variable Declaration
@@ -27,7 +28,8 @@ public class Solver
 		Scanner input = new Scanner(System.in);
 		String fileVariables = "ex1.var";
 		String fileConstrants = "ex1.con";
-		
+		ArrayList<String> constraints = new ArrayList<String>();
+
 /*		
 		// Prompt the user for the required file names
 		System.out.println(">> ENTER COMMAND: <variables.var> <oconstraints.con> <none|fc>");
@@ -36,13 +38,31 @@ public class Solver
 		String[] words = cmdLine.split(" "); // Used to read the input
 */			
 		
+		constraints = getConstraints(fileConstrants);
 		
-	
+		String varArray[] = {"A", "B", "C", "D", "E"};	// Test array for creating the node
+		Node testNode = new Node(varArray);				// Creating a test node
+		testNode.printNode();							// Printing the test node
+		
 	}
 	
-	public static void countVariables(String fileVariables) throws FileNotFoundException
+	public static ArrayList<String> getConstraints(String fileName) throws IOException
 	{
-		BufferedReader br = new BufferedReader(new FileReader(fileVariables));
+		
+		ArrayList<String> c = new ArrayList<>();		// Array list of constraints
+		BufferedReader br	= new BufferedReader(new FileReader(fileName));
+		String line			= null;
+
+		while((line = br.readLine()) != null)
+		{
+			String temp = line.replaceAll("\\s","");	// Removes blank spaces from current line
+			c.add(temp);								// Add the constraint to an array list
+		}
+		
+		br.close();
+		
+		return c;
+		
 	}
 
 }
