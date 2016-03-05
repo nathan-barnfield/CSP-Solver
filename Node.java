@@ -27,10 +27,5 @@ public class Node
 		return;	
 		
 	}
-
-<<<<<<< HEAD
+	
 }
-=======
-}
-
->>>>>>> origin/master

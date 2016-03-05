@@ -7,17 +7,11 @@
  * Purpose:		[Insert Here]
 */
 
-<<<<<<< HEAD
-import java.util.ArrayList;
-import java.util.Scanner;
-=======
 import java.util.*;
->>>>>>> origin/master
 import java.io.*;
 
 public class Solver
 {
-	
 	
 	// Operation Codes
 	public static final int EQUALITY     = 0;
@@ -25,15 +19,11 @@ public class Solver
 	public static final int LESS_THAN    = 2;
 	public static final int GREATER_THAN = 3;
 
-<<<<<<< HEAD
-	public static void main(String args[]) throws IOException
-=======
 	// Map that holds the possible values of the varibales
 	//	map<string,ArrayList>
 	private static Map<String, ArrayList<Integer>> valLists = new HashMap<String, ArrayList<Integer>>();
 	
-	public static void main (String args[]) throws FileNotFoundException
->>>>>>> origin/master
+	public static void main (String args[]) throws IOException
 	{
 		//commandLineCheck(args);
 		// Variable Declaration
