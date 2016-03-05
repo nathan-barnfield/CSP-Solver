@@ -22,7 +22,7 @@ public class Solver
 
 	// Map that holds the possible values of the varibales
 	//	map<string,ArrayList>
-	private static Map<String, ArrayList<Integer>> valLists;
+	private static Map<String, ArrayList<Integer>> valLists = new HashMap<String, ArrayList<Integer>>();
 	
 	public static void main (String args[]) throws FileNotFoundException
 	{
@@ -31,7 +31,7 @@ public class Solver
 		//
 		// File input of the .var file
 		//
-		Scanner varInput = new Scanner(/*new File(args[0])*/"ex1.var1");
+		Scanner varInput = new Scanner(/*new File(args[0])*/new File("ex1.var1"));
 		
 		while(varInput.hasNextLine())
 		{
@@ -44,7 +44,6 @@ public class Solver
 			tokenizer.useDelimiter(" ");								//tokenize the input by using spaces as a the delimiter
 			
 			String var = tokenizer.next();
-			
 			while(tokenizer.hasNext())
 			{
 				tempArray.add(Integer.parseInt(tokenizer.next()));
@@ -54,7 +53,9 @@ public class Solver
 		}
 		varInput.close();												//close the input for the .var file
 		
-		valLists.get("A").toString();
+		int temp1 = valLists.size();
+		
+		System.out.println(temp1);
 		
 		String cmdLine;
 		Scanner input = new Scanner(System.in);
