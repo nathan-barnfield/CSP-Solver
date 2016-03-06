@@ -19,18 +19,25 @@ public class Solver
 	public static final int LESS_THAN    = 2;
 	public static final int GREATER_THAN = 3;
 
-	// Map that holds the possible values of the varibales
+	// Map that holds the possible values of the variables
 	//	map<string,ArrayList>
-	private static Map<String, ArrayList<Integer>> valLists = new HashMap<String, ArrayList<Integer>>();
+	//private static Map<String, ArrayList<Integer>> valLists = new HashMap<String, ArrayList<Integer>>();
 	
 	public static void main (String args[]) throws IOException
 	{
-		//commandLineCheck(args);
 		// Variable Declaration
+		String cmdLine;
+		Scanner input = new Scanner(System.in);
+		String variablesFile = "ex1.var1";
+		String constraintsFile = "ex1.con";
+		ArrayList<String> constraints = new ArrayList<String>();
+		Map<String, ArrayList<Integer>> variables = new HashMap<String, ArrayList<Integer>>();
+		
+		//commandLineCheck(args);
 		//
 		// File input of the .var file
 		//
-		Scanner varInput = new Scanner(/*new File(args[0])*/new File("ex1.var1"));
+/*		Scanner varInput = new Scanner(new File(args[0])new File("ex1.var1"));
 		
 		while(varInput.hasNextLine())
 		{
@@ -50,17 +57,10 @@ public class Solver
 			
 			valLists.put(var, tempArray);
 		}
-		varInput.close();												//close the input for the .var file
+		varInput.close();*/												//close the input for the .var file
 		
-		int temp1 = valLists.size();
-		
-		System.out.println(temp1);
-		
-		String cmdLine;
-		Scanner input = new Scanner(System.in);
-		String fileVariables = "ex1.var";
-		String fileConstrants = "ex1.con";
-		ArrayList<String> constraints = new ArrayList<String>();
+		//int temp1 = valLists.size();
+		//System.out.println(temp1);
 
 /*		
 		// Prompt the user for the required file names
@@ -70,12 +70,45 @@ public class Solver
 		String[] words = cmdLine.split(" "); // Used to read the input
 */			
 		
-		constraints = getConstraints(fileConstrants);
+		variables = getVariables(variablesFile);
+		
+		int temp2 = variables.size();
+		System.out.println(temp2);		// Test to print the size of the map
+		
+		constraints = getConstraints(constraintsFile);
 		
 		String varArray[] = {"A", "B", "C", "D", "E"};	// Test array for creating the node
 		Node testNode = new Node(varArray);				// Creating a test node
 		testNode.printNode();							// Printing the test node
 		
+	}
+	
+	public static Map<String, ArrayList<Integer>> getVariables(String fileName) throws IOException
+	{
+		Map<String, ArrayList<Integer>> v = new HashMap<String, ArrayList<Integer>>();
+		Scanner varInput = new Scanner(new File(fileName));
+		
+		while(varInput.hasNextLine())
+		{
+			String temp = varInput.nextLine();					// Grab the line from the .var1 file
+			ArrayList<Integer> tempArray = new ArrayList<>();	// ArrayList of that will be placed in the Map
+			
+			temp = temp.replaceAll(":", "");
+			
+			Scanner tokenizer = new Scanner(temp);				// Instantiate a new scanner that will parse through the given string
+			tokenizer.useDelimiter(" ");						// Tokenize the input by using spaces as a the delimiter
+			
+			String var = tokenizer.next();
+			while(tokenizer.hasNext())
+			{
+				tempArray.add(Integer.parseInt(tokenizer.next()));
+			}
+			
+			v.put(var, tempArray);
+		}
+		varInput.close();
+		
+		return v;
 	}
 	
 	public static ArrayList<String> getConstraints(String fileName) throws IOException
