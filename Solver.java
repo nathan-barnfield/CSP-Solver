@@ -25,6 +25,7 @@ public class Solver
 	
 	public static void main (String args[]) throws IOException
 	{
+		commandLineCheck(args);									//format checking 
 		// Variable Declaration
 		String cmdLine;
 		Scanner input = new Scanner(System.in);
@@ -32,53 +33,17 @@ public class Solver
 		String constraintsFile = "ex1.con";
 		ArrayList<String> constraints = new ArrayList<String>();
 		Map<String, ArrayList<Integer>> variables = new HashMap<String, ArrayList<Integer>>();
-		
-		//commandLineCheck(args);
-		//
-		// File input of the .var file
-		//
-/*		Scanner varInput = new Scanner(new File(args[0])new File("ex1.var1"));
-		
-		while(varInput.hasNextLine())
-		{
-			String temp = varInput.nextLine();							//Grab the line from the .var file
-			ArrayList<Integer> tempArray = new ArrayList<>();			//ArrayList of that will be placed in the Map
-			
-			temp = temp.replaceAll(":", "");
-			
-			Scanner tokenizer = new Scanner(temp);						//Instantitate a new scanner that will parse through the given string
-			tokenizer.useDelimiter(" ");								//tokenize the input by using spaces as a the delimiter
-			
-			String var = tokenizer.next();
-			while(tokenizer.hasNext())
-			{
-				tempArray.add(Integer.parseInt(tokenizer.next()));
-			}
-			
-			valLists.put(var, tempArray);
-		}
-		varInput.close();*/												//close the input for the .var file
-		
-		//int temp1 = valLists.size();
-		//System.out.println(temp1);
 
-/*		
-		// Prompt the user for the required file names
-		System.out.println(">> ENTER COMMAND: <variables.var> <constraints.con> <none|fc>");
-		System.out.println(">> NOTE: cAsE sEnSiTiVe; Don't include brackets; Files requires file type");
-		cmdLine = input.nextLine();
-		String[] words = cmdLine.split(" "); // Used to read the input
-*/			
 		
 		variables = getVariables(variablesFile);
 		
 		int temp2 = variables.size();
-		System.out.println(temp2);		// Test to print the size of the map
+		System.out.println(variables.get("E").toString());		// Test to print the size of the map
 		
 		constraints = getConstraints(constraintsFile);
-		
+	
 		String varArray[] = {"A", "B", "C", "D", "E"};	// Test array for creating the node
-		Node testNode = new Node(varArray);				// Creating a test node
+		Node testNode = new Node(new ArrayList<String>(Arrays.asList(varArray)));				// Creating a test node
 		testNode.printNode();							// Printing the test node
 		
 	}
@@ -104,7 +69,8 @@ public class Solver
 				tempArray.add(Integer.parseInt(tokenizer.next()));
 			}
 			
-			v.put(var, tempArray);
+			v.put(var, tempArray);								// Add the arraylist to the map
+			tokenizer.close();
 		}
 		varInput.close();
 		
@@ -130,4 +96,69 @@ public class Solver
 		
 	}
 
+	public static void commandLineCheck(String args[])	//Check to see if the correct amount of command line arguments were entered
+	{
+		if(args.length != 3)
+		{
+			System.err.println("ERROR: Unexpected number of Command Line arguments. Program will now exit with an error.");
+			System.exit(-1);
+		}
+		
+	}
+	
+	public static boolean constraintChecking(ArrayList<String> vars, int[] vals, ArrayList<String> constraints)
+	{
+		
+		for (int i = 0; i < constraints.size(); i++)
+		{
+			String constraint = constraints.get(i);
+			int opCode = getOpcode(constraint.charAt(1));
+			int operand1 = vals[vars.indexOf(constraint.charAt(0))];
+			int operand2 = vals[vars.indexOf(constraint.charAt(2))];
+			
+			if(operand1 != -999 && operand2 != -999)
+			{
+				switch(opCode)
+				{
+				case EQUALITY: if(!(operand1 == operand2))
+									return false;
+								break;
+				case INEQUALITY: if(!(operand1 != operand2))
+									return false;
+								break;
+				case LESS_THAN: if(!(operand1 < operand2))
+									return false;
+								break;
+				case GREATER_THAN: if(!(operand1 > operand2))
+									return false;
+								break;
+				default:		System.err.println("ERROR: Unrecognized opCode in Constraint Checking: " + opCode + ". Program will now exit.");
+								break;
+				}
+			}
+			
+			return true;					//return true if all the constraints are true.	
+		}
+		
+		
+		return true;
+	}
+	
+	private static int getOpcode(char operator)
+	{
+		if(operator == '=')
+			return EQUALITY;
+		else if(operator == '!')
+			return INEQUALITY;
+		else if(operator == '<')
+			return LESS_THAN;
+		else if(operator == '>')
+			return GREATER_THAN;
+		
+		System.err.println("ERROR: Unexpected operator in constraints: " + operator + ". Program will now exit.");
+		System.exit(-1);
+		return 0;
+	}
+	
+	
 }
