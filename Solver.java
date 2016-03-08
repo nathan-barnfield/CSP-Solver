@@ -12,46 +12,40 @@ import java.io.*;
 
 public class Solver
 {
-	
+
 	// Operation Codes
 	public static final int EQUALITY     = 0;
 	public static final int INEQUALITY	 = 1;
 	public static final int LESS_THAN    = 2;
 	public static final int GREATER_THAN = 3;
-
-	// Map that holds the possible values of the variables
-	//	map<string,ArrayList>
-	//private static Map<String, ArrayList<Integer>> valLists = new HashMap<String, ArrayList<Integer>>();
 	
 	public static void main (String args[]) throws IOException
 	{
-		commandLineCheck(args);									//format checking 
-		// Variable Declaration
-		String cmdLine;
-		Scanner input = new Scanner(System.in);
-		String variablesFile = "ex1.var1";
-		String constraintsFile = "ex1.con";
-		ArrayList<String> constraints = new ArrayList<String>();
-		Map<String, ArrayList<Integer>> variables = new HashMap<String, ArrayList<Integer>>();
+		ArrayList<String> constraints 				= new ArrayList<String>();
+		Map<String, ArrayList<Integer>> variables	= new HashMap<String, ArrayList<Integer>>();
 
-		
-		variables = getVariables(variablesFile);
-		
-		int temp2 = variables.size();
-		System.out.println(variables.get("E").toString());		// Test to print the size of the map
-		
-		constraints = getConstraints(constraintsFile);
+		commandLineCheck(args);						// Format checking 
+		variables	= getVariables(args);			// Gets the variables
+		constraints	= getConstraints(args);			// Gets the constraints
 	
-		String varArray[] = {"A", "B", "C", "D", "E"};	// Test array for creating the node
-		Node testNode = new Node(new ArrayList<String>(Arrays.asList(varArray)));				// Creating a test node
-		testNode.printNode();							// Printing the test node
-		
+		Node testNode = new Node(variables);		// Creating a test node
+		testNode.printNode();						// Printing the test node
 	}
 	
-	public static Map<String, ArrayList<Integer>> getVariables(String fileName) throws IOException
+	public static void commandLineCheck(String args[])	//Check to see if the correct amount of command line arguments were entered
 	{
-		Map<String, ArrayList<Integer>> v = new HashMap<String, ArrayList<Integer>>();
-		Scanner varInput = new Scanner(new File(fileName));
+		if(args.length != 3)
+		{
+			System.err.println("ERROR: Unexpected number of Command Line arguments. Program will now exit with an error.");
+			System.exit(-1);
+		}
+	}
+	
+	public static Map<String, ArrayList<Integer>> getVariables(String args[]) throws IOException
+	{
+		String variablesFile 				= args[0];
+		Map<String, ArrayList<Integer>> v	= new HashMap<String, ArrayList<Integer>>();
+		Scanner varInput					= new Scanner(new File(variablesFile));
 		
 		while(varInput.hasNextLine())
 		{
@@ -77,12 +71,12 @@ public class Solver
 		return v;
 	}
 	
-	public static ArrayList<String> getConstraints(String fileName) throws IOException
+	public static ArrayList<String> getConstraints(String args[]) throws IOException
 	{
-		
-		ArrayList<String> c = new ArrayList<>();		// Array list of constraints
-		BufferedReader br	= new BufferedReader(new FileReader(fileName));
-		String line			= null;
+		String constraintsFile	= args[1];
+		ArrayList<String> c 	= new ArrayList<>();		// Array list of constraints
+		BufferedReader br		= new BufferedReader(new FileReader(constraintsFile));
+		String line				= null;
 
 		while((line = br.readLine()) != null)
 		{
@@ -93,60 +87,51 @@ public class Solver
 		br.close();
 		
 		return c;
-		
-	}
-
-	public static void commandLineCheck(String args[])	//Check to see if the correct amount of command line arguments were entered
-	{
-		if(args.length != 3)
-		{
-			System.err.println("ERROR: Unexpected number of Command Line arguments. Program will now exit with an error.");
-			System.exit(-1);
-		}
-		
 	}
 	
 	public static boolean constraintChecking(Node assignment, ArrayList<String> constraints)
 	//public static boolean constraintChecking(ArrayList<String> vars, int[] vals, ArrayList<String> constraints)
 	{
-		ArrayList<String> vars = assignment.getVariables();
-		int[] vals = assignment.getValues();
-		
+		ArrayList<String> vars	= assignment.getVariables();
+		int[] vals				= assignment.getValues();
 		
 		for (int i = 0; i < constraints.size(); i++)		
 		{
-			String constraint = constraints.get(i);
-			int opCode = getOpcode(constraint.charAt(1));
-			int operand1 = vals[vars.indexOf(constraint.charAt(0))];
-			int operand2 = vals[vars.indexOf(constraint.charAt(2))];
+			String constraint	= constraints.get(i);
+			int opCode			= getOpcode(constraint.charAt(1));
+			int operand1		= vals[vars.indexOf(constraint.charAt(0))];
+			int operand2		= vals[vars.indexOf(constraint.charAt(2))];
 			
 			if(operand1 != -999 && operand2 != -999)
 			{
 				switch(opCode)
 				{
-				case EQUALITY: if(!(operand1 == operand2))
-									return false;
-								break;
-				case INEQUALITY: if(!(operand1 != operand2))
-									return false;
-								break;
-				case LESS_THAN: if(!(operand1 < operand2))
-									return false;
-								break;
-				case GREATER_THAN: if(!(operand1 > operand2))
-									return false;
-								break;
-				default:		System.err.println("ERROR: Unrecognized opCode in Constraint Checking: " + opCode + ". Program will now exit.");
-								System.exit(-1);
-								break;
+				case EQUALITY:
+					if(!(operand1 == operand2))
+						return false;
+					break;
+				case INEQUALITY:
+					if(!(operand1 != operand2))
+						return false;
+					break;
+				case LESS_THAN:
+					if(!(operand1 < operand2))
+						return false;
+					break;
+				case GREATER_THAN:
+					if(!(operand1 > operand2))
+						return false;
+					break;
+				default:
+					System.err.println("ERROR: Unrecognized opCode in Constraint Checking: " + opCode + ". Program will now exit.");
+					System.exit(-1);
+					break;
 				}
 			}
-			
-							
+				
 		}
 		
-		
-		return true;															//return true if all the constraints are true.	
+		return true; // Returns true if all the constraints are true	
 	}
 	
 	public static Node backtrackingSearch(ArrayList<String> csp)				//First function call for the backtracking algo
@@ -202,6 +187,5 @@ public class Solver
 		System.exit(-1);
 		return 0;
 	}
-	
-	
+
 }
