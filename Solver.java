@@ -106,10 +106,14 @@ public class Solver
 		
 	}
 	
-	public static boolean constraintChecking(ArrayList<String> vars, int[] vals, ArrayList<String> constraints)
+	public static boolean constraintChecking(Node assignment, ArrayList<String> constraints)
+	//public static boolean constraintChecking(ArrayList<String> vars, int[] vals, ArrayList<String> constraints)
 	{
+		ArrayList<String> vars = assignment.getVariables();
+		int[] vals = assignment.getValues();
 		
-		for (int i = 0; i < constraints.size(); i++)
+		
+		for (int i = 0; i < constraints.size(); i++)		
 		{
 			String constraint = constraints.get(i);
 			int opCode = getOpcode(constraint.charAt(1));
@@ -133,18 +137,57 @@ public class Solver
 									return false;
 								break;
 				default:		System.err.println("ERROR: Unrecognized opCode in Constraint Checking: " + opCode + ". Program will now exit.");
+								System.exit(-1);
 								break;
 				}
 			}
 			
-			return true;					//return true if all the constraints are true.	
+							
 		}
 		
 		
-		return true;
+		return true;															//return true if all the constraints are true.	
 	}
 	
-	private static int getOpcode(char operator)
+	public static Node backtrackingSearch(ArrayList<String> csp)				//First function call for the backtracking algo
+	{
+		Node solution = new Node(csp);
+		
+		return recursiveBacktracking(solution,csp);
+	}
+	
+	public static Node recursiveBacktracking(Node assignment, ArrayList<String> csp)
+	{
+		if(baseCaseCheck(assignment, csp))										//base case. If all variables have a value and are consistant, return the assignment.
+			return assignment;
+		
+		
+		
+		return assignment;
+	}
+	
+	public static boolean baseCaseCheck(Node assignment, ArrayList<String> csp)	//Check the node to see if it is consistent and all the variables are instantiated
+	{
+		if(!constraintChecking(assignment,csp) || !checkForNull(assignment))	//if there are conflicts, return false
+			return false;
+		
+		return true;		//return true if all the values and variables have been instantiated and the assignment is consistent
+	}
+	
+	private static boolean checkForNull(Node assignment)			//checks to see if all the values have been instantiated(not null)
+	{
+		int[] vals = assignment.getValues();						//place values into a temp int[] array
+		
+		for (int i = 0; i < vals.length; i++)						//loop through all the values
+		{
+			if (vals[i] == -999)
+				return false;										//if the value is null(-999), return false
+		}
+		
+		return true;												//All the values are not null, return true
+	}
+	
+	private static int getOpcode(char operator)						//gets the opcode of the character passed to it (=,!,<,>)
 	{
 		if(operator == '=')
 			return EQUALITY;
