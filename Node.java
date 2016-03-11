@@ -60,4 +60,24 @@ public class Node
 		return;	
 	}
 	
+	public String getMostConstrainedVar(ArrayList<String> csp)
+	{
+		ArrayList<String> validVariables = new ArrayList<String>();
+		ArrayList<Integer> constraintVals = new ArrayList<Integer>();
+		
+		for(int i = 0; i < variables.size(); i++)
+		{
+			if(values[i] == -999)
+				validVariables.add(variables.get(i));
+		}
+		
+		for(int i = 0; i < csp.size(); i++)
+		{
+			
+		}
+		
+		
+		return mostConstrainedVar;
+	}
+	
 }
