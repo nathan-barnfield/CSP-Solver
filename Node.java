@@ -6,11 +6,15 @@ public class Node
 	private static ArrayList<String> variables;
 	private int[] values;
 	private static Map<String, ArrayList<Integer>> variableMap;
+	private static Map<String, ArrayList<Integer>> legalVals;
 	
 	Node(Map<String, ArrayList<Integer>> v)
 	{
 		if (variableMap == null)
+		{
+			this.legalVals = v;
 			this.variableMap = v;
+		}
 		
 		variables	= new ArrayList<>();
 		Iterator it	= v.entrySet().iterator();
@@ -26,6 +30,11 @@ public class Node
 		
 		for(int i = 0; i < values.length; i++)
 			values[i] = -999;		// Uses -999 for null
+	}
+	
+	public  Map<String,ArrayList<Integer>> getLegalValMap()
+	{
+		return legalVals;
 	}
 	
 	public ArrayList<String> getVariables()
@@ -65,9 +74,16 @@ public class Node
 		return;	
 	}
 	
-	public String getMostConstrainedVar(ArrayList<String> csp)
+	public void setLegalVar(ArrayList<Integer> legalVar, String key)
 	{
-		ArrayList<String> validVariables = new ArrayList<String>();
+		legalVals.remove(key);
+		legalVals.put(key, legalVar);
+	}
+	
+	
+	public String getMostConstrainedVar(ArrayList<String> csp)				//Function that returns the most constrained variable
+	{
+		ArrayList<String> validVariables = new ArrayList<String>();			//ArrayList to hold the 
 		ArrayList<Integer> constraintVals = new ArrayList<Integer>();
 		
 		for(int i = 0; i < variables.size(); i++)
@@ -76,13 +92,42 @@ public class Node
 				validVariables.add(variables.get(i));
 		}
 		
-		for(int i = 0; i < csp.size(); i++)
+		String mostConstrainedVar = new String();
+		int highestVal = 0;
+		
+		for(int i = 0; i < validVariables.size(); i++)
 		{
+			constraintVals = legalVals.get(validVariables.get(i));
 			
+			if(constraintVals.size() > highestVal)
+			{
+				highestVal = constraintVals.size();
+				mostConstrainedVar = validVariables.get(i);
+			}
+			else if(constraintVals.size() == highestVal)
+				mostConstrainedVar = tiebreak(validVariables.get(i),mostConstrainedVar, csp);
 		}
-		
-		
 		return mostConstrainedVar;
 	}
+	
+	private String tiebreak(String var1, String var2, ArrayList<String> csp)	//function to find the most constraining variable
+	{
+		int var1Occ = 0;
+		int var2Occ = 0;
+		
+		for(int i = 0; i < csp.size(); i++)
+		{
+			if(csp.get(i).contains(var1))
+				var1Occ++;
+			if(csp.get(i).contains(var2))
+				var2Occ++;
+		}
+		
+		if(var1Occ > var2Occ)
+			return var1;
+		else
+			return var2;
+	}
+	
 	
 }

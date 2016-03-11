@@ -29,10 +29,17 @@ public class Solver
 		constraints		= getConstraints(args);		// Gets the constraints
 		Node startState = new Node(variables);		// Creates the start state for the algorithm
 		Node solution	= backtrackingSearch(startState, constraints);
-		solution.printNode(counter);
 		
-		if(counter < 30)
-			System.out.println(" solution");
+		if(solution != null)						//If the search was successful
+		{
+			solution.printNode(counter);
+				if(counter < 30)
+					System.out.println(" solution");
+		}
+		else
+		{
+			System.out.println("No Valid Solution found.");
+		}
 	}
 	
 	public static void commandLineCheck(String args[])	//Check to see if the correct amount of command line arguments were entered
@@ -184,7 +191,7 @@ public class Solver
 			assignment.setValue(var, -999);								// Remove { var = value } from assignment
 		}
 		
-		return assignment;
+		return null;													//return failure
 	}
 	
 	public static boolean baseCaseCheck(Node assignment, ArrayList<String> csp)
@@ -239,4 +246,50 @@ public class Solver
 		return null;
 	}
 
+	public static int getLeastConsVal(Node assignment,ArrayList<String> csp, String key)
+	{
+		Map<String, ArrayList<Integer>> legalValsMap = assignment.getLegalValMap();
+		ArrayList<Integer> possibleVals = legalValsMap.get(key);							//get the possible values to choose from
+		
+		int leasttConstVal;
+		int lowestNumVarsElim = -999;
+		
+		ArrayList<String> releventConstraints = new ArrayList<String>();
+		ArrayList<String> keys = new ArrayList<String>();
+		
+		for(int i = 0; i < csp.size(); i++)													//go through the constraints and pick out the ones that the key is apart of
+		{
+			if(csp.get(i).contains(key))
+				releventConstraints.add(csp.get(i));
+		}
+		
+		for(int i = 0; i < releventConstraints.size(); i++)									//go through the reduced constraints list and pick out the other variables that are affected bythe key
+		{
+			if(key.compareTo(String.valueOf(releventConstraints.get(i).charAt(0))) == 0)
+				if(!keys.contains(String.valueOf(releventConstraints.get(i).charAt(2))))
+					keys.add(String.valueOf(releventConstraints.get(i).charAt(2)));
+			else
+				keys.add(String.valueOf(releventConstraints.get(i).charAt(0)));
+		}
+		
+		
+		
+		
+		for (int i = 0; i < possibleVals.size(); i++ )
+		{
+			int currentVal = possibleVals.get(i);
+			
+			for(int k = 0; k < keys.size(); k++)
+			{
+				ArrayList<Integer> temp = legalValsMap.get(keys.get(k));
+				
+				for(int j = 0; j < temp.size(); j++)
+				{
+					
+				}
+			}
+			
+		}
+	}
+	
 }
