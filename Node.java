@@ -18,12 +18,12 @@ public class Node
 		while(it.hasNext())	
 		{
 			Map.Entry entry = (Entry) it.next();
-			String temp = (String) entry.getKey();
+			String temp		= (String) entry.getKey();
 			variables.add(temp);	// Populates the variable ArrayList from the HashMap
-			//it.remove();			// Avoids ConcurrentModificationException
 		}
 		
 		this.values		= new int[variables.size()];
+		
 		for(int i = 0; i < values.length; i++)
 			values[i] = -999;		// Uses -999 for null
 	}
@@ -48,14 +48,19 @@ public class Node
 		this.values[variables.indexOf(var)] = val;
 	}
 	
-	public void printNode()
+	public void printNode(int c)
 	{
+		String counter	= (++c) + ". ";
+		String output	= "";
 		
 		for(int i = 0; i < variables.size(); i++)
 		{
 			if(values[i] != -999)
-				System.out.format("%s=%d ", variables.get(i), values[i]);
+				output = output + variables.get(i) + "=" + values[i] + " ";
 		}
+		
+		System.out.format("%-4s", counter);
+		System.out.format("%-30s", output);
 		
 		return;	
 	}
