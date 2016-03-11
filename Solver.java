@@ -27,9 +27,8 @@ public class Solver
 		commandLineCheck(args);						// Format checking 
 		variables	= getVariables(args);			// Gets the variables
 		constraints	= getConstraints(args);			// Gets the constraints
-	
-		Node testNode = new Node(variables);		// Creating a test node
-		testNode.printNode();						// Printing the test node
+		Node startState = new Node(variables);		// Creates the start state for the algorithm
+		backtrackingSearch(startState, constraints);
 	}
 	
 	public static void commandLineCheck(String args[])	//Check to see if the correct amount of command line arguments were entered
@@ -74,7 +73,7 @@ public class Solver
 	public static ArrayList<String> getConstraints(String args[]) throws IOException
 	{
 		String constraintsFile	= args[1];
-		ArrayList<String> c 	= new ArrayList<>();		// Array list of constraints
+		ArrayList<String> c 	= new ArrayList<>();	// Array list of constraints
 		BufferedReader br		= new BufferedReader(new FileReader(constraintsFile));
 		String line				= null;
 
@@ -90,7 +89,6 @@ public class Solver
 	}
 	
 	public static boolean constraintChecking(Node assignment, ArrayList<String> constraints)
-	//public static boolean constraintChecking(ArrayList<String> vars, int[] vals, ArrayList<String> constraints)
 	{
 		ArrayList<String> vars	= assignment.getVariables();
 		int[] vals				= assignment.getValues();
@@ -99,8 +97,8 @@ public class Solver
 		{
 			String constraint	= constraints.get(i);
 			int opCode			= getOpcode(constraint.charAt(1));
-			int operand1		= vals[vars.indexOf(constraint.charAt(0))];
-			int operand2		= vals[vars.indexOf(constraint.charAt(2))];
+			int operand1		= vals[vars.indexOf(String.valueOf(constraint.charAt(0)))];
+			int operand2		= vals[vars.indexOf(String.valueOf(constraint.charAt(2)))];
 			
 			if(operand1 != -999 && operand2 != -999)
 			{
@@ -109,19 +107,19 @@ public class Solver
 				case EQUALITY:
 					if(!(operand1 == operand2))
 						return false;
-					break;
+						break;
 				case INEQUALITY:
 					if(!(operand1 != operand2))
 						return false;
-					break;
+						break;
 				case LESS_THAN:
 					if(!(operand1 < operand2))
 						return false;
-					break;
+						break;
 				case GREATER_THAN:
 					if(!(operand1 > operand2))
 						return false;
-					break;
+						break;
 				default:
 					System.err.println("ERROR: Unrecognized opCode in Constraint Checking: " + opCode + ". Program will now exit.");
 					System.exit(-1);
@@ -134,45 +132,51 @@ public class Solver
 		return true; // Returns true if all the constraints are true	
 	}
 	
-	public static Node backtrackingSearch(ArrayList<String> csp)				//First function call for the backtracking algo
+	public static Node backtrackingSearch(Node solution, ArrayList<String> csp)
 	{
-		Node solution = new Node(csp);
-		
-		return recursiveBacktracking(solution,csp);
+		return recursiveBacktracking(solution, csp);
 	}
 	
 	public static Node recursiveBacktracking(Node assignment, ArrayList<String> csp)
 	{
-		if(baseCaseCheck(assignment, csp))										//base case. If all variables have a value and are consistant, return the assignment.
-			return assignment;
 		
+		if(baseCaseCheck(assignment, csp))
+			return assignment;							// Returns the assignment of variables if it satisfies the clauses
 		
+		int[] vals = assignment.getValues();
+		String var = selectUnassignedVar(assignment);	// Grabs the next unassigned variable
+		
+		for (int i = 0; i < vals.length; i++)
+		{
+			assignment.setValue(var, vals[i]);
+		}
 		
 		return assignment;
 	}
 	
-	public static boolean baseCaseCheck(Node assignment, ArrayList<String> csp)	//Check the node to see if it is consistent and all the variables are instantiated
+	// Checks the node to see if all constraints are satisfied and all variables are assigned
+	public static boolean baseCaseCheck(Node assignment, ArrayList<String> csp)
 	{
-		if(!constraintChecking(assignment,csp) || !checkForNull(assignment))	//if there are conflicts, return false
-			return false;
+		if(!constraintChecking(assignment,csp) || !checkForNull(assignment))
+			return false; // Returns false if there are conflicts
 		
-		return true;		//return true if all the values and variables have been instantiated and the assignment is consistent
+		return true;
 	}
 	
-	private static boolean checkForNull(Node assignment)			//checks to see if all the values have been instantiated(not null)
+	private static boolean checkForNull(Node assignment)		//checks to see if all the values have been instantiated(not null)
 	{
-		int[] vals = assignment.getValues();						//place values into a temp int[] array
+		int[] vals = assignment.getValues();					//place values into a temp int[] array
 		
-		for (int i = 0; i < vals.length; i++)						//loop through all the values
+		for (int i = 0; i < vals.length; i++)					//loop through all the values
 		{
 			if (vals[i] == -999)
-				return false;										//if the value is null(-999), return false
+				return false;									//if the value is null(-999), return false
 		}
 		
-		return true;												//All the values are not null, return true
+		return true;											//All the values are not null, return true
 	}
 	
-	private static int getOpcode(char operator)						//gets the opcode of the character passed to it (=,!,<,>)
+	private static int getOpcode(char operator)					//gets the opcode of the character passed to it (=,!,<,>)
 	{
 		if(operator == '=')
 			return EQUALITY;
@@ -186,6 +190,20 @@ public class Solver
 		System.err.println("ERROR: Unexpected operator in constraints: " + operator + ". Program will now exit.");
 		System.exit(-1);
 		return 0;
+	}
+	
+	private static String selectUnassignedVar(Node assignment)
+	{
+		ArrayList<String> vars	= assignment.getVariables();
+		int[] vals				= assignment.getValues();
+		
+		for (int i = 0; i < vals.length; i++)
+		{
+			if (vals[i] == -999)
+				return vars.get(i);
+		}
+		
+		return null;
 	}
 
 }

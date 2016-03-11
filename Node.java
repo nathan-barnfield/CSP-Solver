@@ -34,11 +34,10 @@ public class Node
 		return this.values;
 	}
 	
-	public void setValues(int[] val)
+	public void setValue(String var, int vals)
 	{
-		this.values = val;
+		
 	}
-	
 	
 	public void printNode()
 	{
