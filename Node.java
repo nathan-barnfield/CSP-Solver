@@ -5,9 +5,13 @@ public class Node
 {
 	private static ArrayList<String> variables;
 	private int[] values;
+	private static Map<String, ArrayList<Integer>> variableMap;
 	
 	Node(Map<String, ArrayList<Integer>> v)
 	{
+		if (variableMap == null)
+			this.variableMap = v;
+		
 		variables	= new ArrayList<>();
 		Iterator it	= v.entrySet().iterator();
 		
@@ -16,7 +20,7 @@ public class Node
 			Map.Entry entry = (Entry) it.next();
 			String temp = (String) entry.getKey();
 			variables.add(temp);	// Populates the variable ArrayList from the HashMap
-			it.remove();			// Avoids ConcurrentModificationException
+			//it.remove();			// Avoids ConcurrentModificationException
 		}
 		
 		this.values		= new int[variables.size()];
@@ -34,9 +38,14 @@ public class Node
 		return this.values;
 	}
 	
-	public void setValue(String var, int vals)
+	public ArrayList<Integer> getLegalValues(String var)
 	{
-		
+		return variableMap.get(var);
+	}
+	
+	public void setValue(String var, int val)
+	{
+		this.values[variables.indexOf(var)] = val;
 	}
 	
 	public void printNode()
@@ -49,7 +58,6 @@ public class Node
 		}
 		
 		return;	
-		
 	}
 	
 }

@@ -28,7 +28,9 @@ public class Solver
 		variables	= getVariables(args);			// Gets the variables
 		constraints	= getConstraints(args);			// Gets the constraints
 		Node startState = new Node(variables);		// Creates the start state for the algorithm
-		backtrackingSearch(startState, constraints);
+		Node solution = backtrackingSearch(startState, constraints);
+		solution.printNode();
+		System.out.println("     solution");
 	}
 	
 	public static void commandLineCheck(String args[])	//Check to see if the correct amount of command line arguments were entered
@@ -106,20 +108,36 @@ public class Solver
 				{
 				case EQUALITY:
 					if(!(operand1 == operand2))
+					{
+						assignment.printNode();
+						System.out.println("     failure");
 						return false;
-						break;
+					}
+					break;
 				case INEQUALITY:
 					if(!(operand1 != operand2))
+					{
+						assignment.printNode();
+						System.out.println("     failure");
 						return false;
-						break;
+					}
+					break;
 				case LESS_THAN:
 					if(!(operand1 < operand2))
+					{
+						assignment.printNode();
+						System.out.println("     failure");
 						return false;
-						break;
+					}
+					break;
 				case GREATER_THAN:
 					if(!(operand1 > operand2))
+					{
+						assignment.printNode();
+						System.out.println("     failure");
 						return false;
-						break;
+					}
+					break;
 				default:
 					System.err.println("ERROR: Unrecognized opCode in Constraint Checking: " + opCode + ". Program will now exit.");
 					System.exit(-1);
@@ -139,16 +157,25 @@ public class Solver
 	
 	public static Node recursiveBacktracking(Node assignment, ArrayList<String> csp)
 	{
-		
 		if(baseCaseCheck(assignment, csp))
-			return assignment;							// Returns the assignment of variables if it satisfies the clauses
+			return assignment; // Returns the assignment of variables if it satisfies the clauses
 		
-		int[] vals = assignment.getValues();
-		String var = selectUnassignedVar(assignment);	// Grabs the next unassigned variable
+		String var				= selectUnassignedVar(assignment);	// Grabs the next unassigned variable
+		ArrayList<Integer> vals	= assignment.getLegalValues(var);
 		
-		for (int i = 0; i < vals.length; i++)
+		for (int i = 0; i < vals.size(); i++)
 		{
-			assignment.setValue(var, vals[i]);
+			assignment.setValue(var, vals.get(i));	// add { var = value } to assignment
+			
+			if(constraintChecking(assignment,csp))
+			{
+				Node result = recursiveBacktracking(assignment, csp);
+				
+				if(constraintChecking(result,csp) && checkForNull(result))
+					return result;
+			}
+			
+			assignment.setValue(var, -999);
 		}
 		
 		return assignment;
