@@ -251,7 +251,7 @@ public class Solver
 		Map<String, ArrayList<Integer>> legalValsMap = assignment.getLegalValMap();
 		ArrayList<Integer> possibleVals = legalValsMap.get(key);							//get the possible values to choose from
 		
-		int leasttConstVal;
+		int leastConstVal;
 		int lowestNumVarsElim = -999;
 		
 		ArrayList<String> releventConstraints = new ArrayList<String>();
@@ -269,11 +269,9 @@ public class Solver
 				if(!keys.contains(String.valueOf(releventConstraints.get(i).charAt(2))))
 					keys.add(String.valueOf(releventConstraints.get(i).charAt(2)));
 			else
-				keys.add(String.valueOf(releventConstraints.get(i).charAt(0)));
+				if(!keys.contains(String.valueOf(releventConstraints.get(i).charAt(0))))
+					keys.add(String.valueOf(releventConstraints.get(i).charAt(0)));
 		}
-		
-		
-		
 		
 		for (int i = 0; i < possibleVals.size(); i++ )
 		{
@@ -285,9 +283,16 @@ public class Solver
 				
 				for(int j = 0; j < temp.size(); j++)
 				{
-					
+					for(int l = 0; l < releventConstraints.size();l++)
+					{
+						if(releventConstraints.get(l).contains(keys.get(k)))
+						{
+							//put switch statement here
+						}
+					}
 				}
 			}
+			//
 			
 		}
 	}
