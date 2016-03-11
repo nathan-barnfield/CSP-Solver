@@ -246,13 +246,13 @@ public class Solver
 		return null;
 	}
 
-	public static int getLeastConsVal(Node assignment,ArrayList<String> csp, String key)
+	public static int getLeastConstVal(Node assignment,ArrayList<String> csp, String key)				//key being the variable that was chosen
 	{
 		Map<String, ArrayList<Integer>> legalValsMap = assignment.getLegalValMap();
 		ArrayList<Integer> possibleVals = legalValsMap.get(key);							//get the possible values to choose from
 		
-		int leastConstVal;
-		int lowestNumVarsElim = -999;
+		int leastConstVal = possibleVals.get(0);
+		int lowestNumVarsElim = Integer.MAX_VALUE;
 		
 		ArrayList<String> releventConstraints = new ArrayList<String>();
 		ArrayList<String> keys = new ArrayList<String>();
@@ -276,7 +276,7 @@ public class Solver
 		for (int i = 0; i < possibleVals.size(); i++ )
 		{
 			int currentVal = possibleVals.get(i);
-			
+			int currentCount = 0;
 			for(int k = 0; k < keys.size(); k++)
 			{
 				ArrayList<Integer> temp = legalValsMap.get(keys.get(k));
@@ -288,13 +288,53 @@ public class Solver
 						if(releventConstraints.get(l).contains(keys.get(k)))
 						{
 							//put switch statement here
+							String constraint	= releventConstraints.get(l);
+							int opCode			= getOpcode(constraint.charAt(1));
+							int operand1, operand2;
+							if(keys.get(k).compareTo(String.valueOf(constraint.charAt(0))) == 0)
+							{
+								 operand1		= temp.get(j);	//if the variable being constrained is the first op, place that value in operand 1
+								 operand2		= currentVal;
+							}
+							else
+							{
+								 operand1		= currentVal;	//if the variable being constrained is the second op, place that value in operand 2
+								 operand2		= temp.get(j);
+							}
+							
+							switch(opCode)
+							{
+							case EQUALITY:
+								if(!(operand1 == operand2))
+									currentCount++;
+								break;
+							case INEQUALITY:
+								if(!(operand1 != operand2))
+									currentCount++;
+								break;
+							case LESS_THAN:
+								if(!(operand1 < operand2))
+									currentCount++;
+								break;
+							case GREATER_THAN:
+								if(!(operand1 > operand2))
+									currentCount++;
+								break;
+							default:
+								System.err.println("ERROR: Unrecognized opCode in get least constraining value method: " + opCode + ". Program will now exit.");
+								System.exit(-1);
+								break;
+							}
+							
 						}
 					}
 				}
 			}
-			//
 			
+			if(currentCount < lowestNumVarsElim)
+				leastConstVal = currentVal;
 		}
+		return leastConstVal;
 	}
 	
 }
