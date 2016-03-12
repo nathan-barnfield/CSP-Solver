@@ -12,8 +12,8 @@ public class Node
 	{
 		if (variableMap == null)
 		{
-			this.legalVals = v;
-			this.variableMap = v;
+			legalVals = v;
+			variableMap = v;
 		}
 		
 		variables	= new ArrayList<>();
@@ -37,6 +37,10 @@ public class Node
 		return legalVals;
 	}
 	
+	public void setLegalValMap(Map<String, ArrayList<Integer>> map)
+	{
+		legalVals = map;
+	}
 	public ArrayList<String> getVariables()
 	{
 		return variables;

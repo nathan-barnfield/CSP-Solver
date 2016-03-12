@@ -207,41 +207,45 @@ public class Solver
 			assignment.setValue(var, -999);								// Remove { var = value } from assignment
 		}
 		
-		return null;													//return failure
+		return assignment;													//return failure
 	}
 	
 	
 	public static Node recursiveBacktrackingWithFC(Node assignment, ArrayList<String> csp)
 	{
-		if(baseCaseCheck(assignment, csp))
+		if(assignment != null)
+		{
+		if(baseCaseCheck(assignment, csp) )
 			return assignment;											// Returns if given a solution
 		
+		Map<String,ArrayList<Integer>> legalValMap = assignment.getLegalValMap();
 		
 		String var				= assignment.getMostConstrainedVar(csp);
 		ArrayList<Integer> vals	= assignment.getLegalValues(var);
 		
 		ArrayList<Integer> valsTried = new ArrayList<Integer>();
+		System.out.println("In recursive backtracking: Now trying var: " + var);
 		
 		for (int i = 0; i < vals.size() && counter < 30; i++)
 		{
 			int chosenVal = getLeastConstVal(assignment,csp,var, valsTried);
+			System.out.println(chosenVal);
 			assignment.setValue(var,chosenVal);						// Add { var = value } to assignment
-			
-			counter++;
 			
 			Node temp = forwardChecking(assignment, csp, chosenVal, var);
 			if(temp != null && counter < 30)
 			{
 				Node result = recursiveBacktrackingWithFC(temp, csp);	// Result <-- recrusiveBacktracking
 				
-				if(constraintChecking(result,csp) && checkForNull(result))
+				if(constraintChecking(result,csp) && checkForNull(result) && result != null)
 					return result;										// If result != failure, then return result
 			}
 			
 			assignment.setValue(var, -999);								// Remove { var = value } from assignment
 			valsTried.add(chosenVal);
+			assignment.setLegalValMap(legalValMap);
 		}
-		
+		}
 		return null;													//return failure
 	}
 	
@@ -399,6 +403,7 @@ public class Solver
 		ArrayList<String> releventConstraints = new ArrayList<String>();				//all the constraints that the variable is involved in
 		ArrayList<String> keys = new ArrayList<String>();								//ArrayList that holds all the variables constrained by the chosen variable
 		
+		System.out.println(legalValsMap.toString());
 		for(int i = 0; i < csp.size(); i++)												//go through the constraints and pick out the ones that the chosen variable is a part of
 		{
 			if(csp.get(i).contains(varAssigned))
@@ -478,6 +483,7 @@ public class Solver
 			
 			
 			}
+			System.out.println("vals to remove: " + valsToRemove.toString());
 			
 			for(int l = 0; l < valsToRemove.size(); l++)
 			{
@@ -485,9 +491,12 @@ public class Solver
 					temp.remove(valsToRemove.get(l));
 			}
 			if(temp.size() == 0)
+			{
+				assignment.printNode(counter);
+				System.out.println(" failure");
 				return null;
+			}
 			assignment.setLegalVar(temp, keys.get(i));
-			
 		}
 		return assignment;
 	}
