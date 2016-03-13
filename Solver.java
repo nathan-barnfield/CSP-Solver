@@ -218,26 +218,29 @@ public class Solver
 		if(baseCaseCheck(assignment, csp) )
 			return assignment;											// Returns if given a solution
 		
-		Map<String,ArrayList<Integer>> legalValMap = assignment.getLegalValMap();
+		Map<String,ArrayList<Integer>> legalValMap = new HashMap<String,ArrayList<Integer>>(assignment.getLegalValMap());
 		
 		String var				= assignment.getMostConstrainedVar(csp);
-		ArrayList<Integer> vals	= assignment.getLegalValues(var);
+		ArrayList<Integer> vals	= new ArrayList<Integer>(assignment.getLegalValues(var));
 		
 		ArrayList<Integer> valsTried = new ArrayList<Integer>();
-		System.out.println("In recursive backtracking: Now trying var: " + var);
 		
 		for (int i = 0; i < vals.size() && counter < 30; i++)
 		{
-			int chosenVal = getLeastConstVal(assignment,csp,var, valsTried);
-			System.out.println(chosenVal);
+			int chosenVal = getLeastConstVal(assignment,csp,var, valsTried ,vals);
 			assignment.setValue(var,chosenVal);						// Add { var = value } to assignment
 			
-			Node temp = forwardChecking(assignment, csp, chosenVal, var);
-			if(temp != null && counter < 30)
+		//	ArrayList<Integer> setVal = new ArrayList<Integer>(); setVal.add(chosenVal);		//set the legal value array for this var to the chosen value
+		//	assignment.setLegalVar(setVal, var);
+			Node temp = new Node();
+			 temp = forwardChecking(assignment, csp, chosenVal, var);						//Apply forward checking to get rid of variables
+			
+			if(temp != null &&  constraintChecking(temp,csp) && counter < 30)
 			{
-				Node result = recursiveBacktrackingWithFC(temp, csp);	// Result <-- recrusiveBacktracking
+				Node result = new Node();
+				result = recursiveBacktrackingWithFC(temp, csp);	// Result <-- recrusiveBacktracking
 				
-				if(constraintChecking(result,csp) && checkForNull(result) && result != null)
+				if(result != null && constraintChecking(result,csp) && checkForNull(result))
 					return result;										// If result != failure, then return result
 			}
 			
@@ -302,14 +305,21 @@ public class Solver
 		return null;
 	}
 
-	public static int getLeastConstVal(Node assignment,ArrayList<String> csp, String key, ArrayList<Integer> valsTried)				//key being the variable that was chosen
+	public static int getLeastConstVal(Node assignment,ArrayList<String> csp, String key, ArrayList<Integer> valsTried, ArrayList<Integer> possibleVals)				//key being the variable that was chosen
 	{
-		Map<String, ArrayList<Integer>> legalValsMap = assignment.getLegalValMap();
-		ArrayList<Integer> possibleVals = legalValsMap.get(key);							//get the possible values to choose from
+		Map<String, ArrayList<Integer>> legalValsMap = new HashMap<String, ArrayList<Integer>>(assignment.getLegalValMap());
+	//	ArrayList<Integer> possibleVals = new ArrayList<Integer>(legalValsMap.get(key));							//get the possible values to choose from
 		
+	
 		for(int i = 0; i < valsTried.size(); i++)
+		{
 			if(possibleVals.contains(valsTried.get(i)))
+			{
 				possibleVals.remove(valsTried.get(i));
+			}
+		}
+		
+	
 		
 		int leastConstVal = possibleVals.get(0);
 		int lowestNumVarsElim = Integer.MAX_VALUE;
@@ -326,11 +336,19 @@ public class Solver
 		for(int i = 0; i < releventConstraints.size(); i++)									//go through the reduced constraints list and pick out the other variables that are affected by the key
 		{
 			if(key.compareTo(String.valueOf(releventConstraints.get(i).charAt(0))) == 0)
+			{
 				if(!keys.contains(String.valueOf(releventConstraints.get(i).charAt(2))))
+				{
 					keys.add(String.valueOf(releventConstraints.get(i).charAt(2)));
+				}
+			}
 			else
+			{
 				if(!keys.contains(String.valueOf(releventConstraints.get(i).charAt(0))))
+				{
 					keys.add(String.valueOf(releventConstraints.get(i).charAt(0)));
+				}
+			}
 		}
 		
 		for (int i = 0; i < possibleVals.size(); i++ )
@@ -391,7 +409,7 @@ public class Solver
 				}
 			}
 			
-			if(currentCount < lowestNumVarsElim)
+			if(currentCount > lowestNumVarsElim)
 				leastConstVal = currentVal;
 		}
 		return leastConstVal;
@@ -399,30 +417,48 @@ public class Solver
 	
 	public static Node forwardChecking(Node assignment, ArrayList<String> csp, int valAssigned, String varAssigned)
 	{
-		Map<String, ArrayList<Integer>> legalValsMap = assignment.getLegalValMap();		//get the map that contains all the current legal values
+		Map<String, ArrayList<Integer>> legalValsMap = new HashMap<String, ArrayList<Integer>>(assignment.getLegalValMap());		//get the map that contains all the current legal values
 		ArrayList<String> releventConstraints = new ArrayList<String>();				//all the constraints that the variable is involved in
 		ArrayList<String> keys = new ArrayList<String>();								//ArrayList that holds all the variables constrained by the chosen variable
 		
-		System.out.println(legalValsMap.toString());
+		
 		for(int i = 0; i < csp.size(); i++)												//go through the constraints and pick out the ones that the chosen variable is a part of
 		{
 			if(csp.get(i).contains(varAssigned))
 				releventConstraints.add(csp.get(i));
 		}
 		
+	
+		
 		for(int i = 0; i < releventConstraints.size(); i++)									//go through the reduced constraints list and pick out the other variables that are affected by the chosen variable
 		{
+	
 			if(varAssigned.compareTo(String.valueOf(releventConstraints.get(i).charAt(0))) == 0)
+			{
 				if(!keys.contains(String.valueOf(releventConstraints.get(i).charAt(2))))
+				{
 					keys.add(String.valueOf(releventConstraints.get(i).charAt(2)));
+				}
+			}
 			else
+			{
 				if(!keys.contains(String.valueOf(releventConstraints.get(i).charAt(0))))
+				{
 					keys.add(String.valueOf(releventConstraints.get(i).charAt(0)));
+				}
+			}
 		}
 		
 		for(int i = 0; i < keys.size(); i++)
 		{
-			ArrayList<Integer> temp = legalValsMap.get(keys.get(i));
+			ArrayList<Integer> temp = new ArrayList<Integer>(legalValsMap.get(keys.get(i)));
+			if(temp.size() == 0)
+			{
+				assignment.printNode(counter);
+				System.out.println(" failure");
+				return null;
+			}
+			
 			ArrayList<Integer> valsToRemove = new ArrayList<Integer>();
 			
 			for(int k = 0;k < temp.size(); k++)
@@ -450,23 +486,31 @@ public class Solver
 						{
 						case EQUALITY:
 							if(!(operand1 == operand2))
+							{
 								if(!valsToRemove.contains(temp.get(k)))
 									valsToRemove.add(temp.get(k));
+							}
 							break;
 						case INEQUALITY:
 							if(!(operand1 != operand2))
+							{
 								if(!valsToRemove.contains(temp.get(k)))
 									valsToRemove.add(temp.get(k));
+							}
 							break;
 						case LESS_THAN:
 							if(!(operand1 < operand2))
+							{
 								if(!valsToRemove.contains(temp.get(k)))
 									valsToRemove.add(temp.get(k));
+							}
 							break;
 						case GREATER_THAN:
 							if(!(operand1 > operand2))
+							{
 								if(!valsToRemove.contains(temp.get(k)))
 									valsToRemove.add(temp.get(k));
+							}
 							break;
 						default:
 							System.err.println("ERROR: Unrecognized opCode in get least constraining value method: " + opCode + ". Program will now exit.");
@@ -483,7 +527,7 @@ public class Solver
 			
 			
 			}
-			System.out.println("vals to remove: " + valsToRemove.toString());
+		
 			
 			for(int l = 0; l < valsToRemove.size(); l++)
 			{
@@ -492,12 +536,15 @@ public class Solver
 			}
 			if(temp.size() == 0)
 			{
-				assignment.printNode(counter);
+				assignment.printNode(counter++);
 				System.out.println(" failure");
 				return null;
 			}
 			assignment.setLegalVar(temp, keys.get(i));
 		}
-		return assignment;
+		if(constraintChecking(assignment, csp))
+			return assignment;
+		else
+			return null;
 	}
 }

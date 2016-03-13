@@ -6,7 +6,7 @@ public class Node
 	private static ArrayList<String> variables;
 	private int[] values;
 	private static Map<String, ArrayList<Integer>> variableMap;
-	private static Map<String, ArrayList<Integer>> legalVals;
+	private  Map<String, ArrayList<Integer>> legalVals;
 	
 	Node(Map<String, ArrayList<Integer>> v)
 	{
@@ -32,6 +32,10 @@ public class Node
 			values[i] = -999;		// Uses -999 for null
 	}
 	
+	public Node() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public  Map<String,ArrayList<Integer>> getLegalValMap()
 	{
 		return legalVals;
@@ -39,7 +43,7 @@ public class Node
 	
 	public void setLegalValMap(Map<String, ArrayList<Integer>> map)
 	{
-		legalVals = map;
+		this.legalVals = map;
 	}
 	public ArrayList<String> getVariables()
 	{
@@ -97,18 +101,18 @@ public class Node
 		}
 		
 		String mostConstrainedVar = new String();
-		int highestVal = 0;
+		int lowestVal = Integer.MAX_VALUE;
 		
 		for(int i = 0; i < validVariables.size(); i++)
 		{
 			constraintVals = legalVals.get(validVariables.get(i));
 			
-			if(constraintVals.size() > highestVal)
+			if(constraintVals.size() < lowestVal)
 			{
-				highestVal = constraintVals.size();
+				lowestVal = constraintVals.size();
 				mostConstrainedVar = validVariables.get(i);
 			}
-			else if(constraintVals.size() == highestVal)
+			else if(constraintVals.size() == lowestVal)
 				mostConstrainedVar = tiebreak(validVariables.get(i),mostConstrainedVar, csp);
 		}
 		return mostConstrainedVar;
